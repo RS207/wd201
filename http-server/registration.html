@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7fafc;
+            flex-direction: column;
+        }
+
+        .table-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table-container th,
+        .table-container td {
+            border: 1px solid #cbd5e0;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: inline-block;
+            width: 222px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+        }
+
+        .form-checkbox {
+            margin-left: 5px;
+        }
+
+        .form-submit {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-submit:hover {
+            background-color: #3182ce;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+        <h2 class="form-title">Registration Form</h2>
+        <form id="user-form">
+            <label for="name" class="form-label">Name</label>
+            <input required type="text" id="name" name="name" class="form-input" placeholder="Enter full name">
+
+            <label for="email" class="form-label">Email</label>
+            <input required type="email" id="email" name="email" class="form-input" placeholder="Enter email">
+
+            <label for="password" class="form-label">Password</label>
+            <input required type="password" id="password" name="password" class="form-input" placeholder="Enter password">
+
+            <label for="dob" class="form-label">Date of Birth</label>
+            <input required type="date" id="dob" name="dob" class="form-input">
+            <span class="error-message" id="dobError"></span><br>
+
+            <input type="checkbox" id="acceptTerms" name="acceptTerms" class="form-checkbox">
+            <label for="acceptTerms" class="form-label">Accept Terms & Conditions</label><br>
+            <span class="error-message" id="acceptTermsError"></span><br>
+
+            <button type="submit" class="form-submit">Submit</button>
+        </form>
+    </div>
+    <div class="table-container" id="user-entries">
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Dob</th>
+                <th>Accepted terms?</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    const retrieveEntries = () => {
+        let entries = localStorage.getItem("user-entries");
+        if (entries) {
+            entries = JSON.parse(entries);
+        } else {
+            entries = [];
+        }
+        return entries;
+    };
+
+    const userForm = document.getElementById("user-form");
+    let userEntries = retrieveEntries();
+
+    const displayEntries = () => {
+        const entries = retrieveEntries();
+        const tableEntries = entries.map((entry) => {
+            const nameCell = `<td class='border px-4 py-2'>${entry.name}</td>`;
+            const emailCell = `<td class='border px-4 py-2'>${entry.email}</td>`;
+            const passwordCell = `<td class='border px-4 py-2'>${entry.password}</td>`;
+            const dobCell = `<td class='border px-4 py-2'>${entry.dob}</td>`;
+            const acceptTermsCell = `<td class='border px-4 py-2'>${entry.acceptedTermsAndconditions}</td>`;
+
+            const row = `<tr>${nameCell}${emailCell}${passwordCell}${dobCell}${acceptTermsCell}</tr>`;
+            return row;
+        }).join("\n");
+
+        const table = document.querySelector(".table-container table");
+        table.innerHTML = `<tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Dob</th>
+                            <th>Accepted terms?</th>
+                          </tr>${tableEntries}`;
+    };
+
+    const saveUserForm = (event) => {
+        event.preventDefault();
+
+        const acceptTermsCheckbox = document.getElementById('acceptTerms');
+        const acceptTermsError = document.getElementById('acceptTermsError');
+
+        // Validate checkbox
+        if (!acceptTermsCheckbox.checked) {
+            acceptTermsError.textContent = 'Please accept the terms and conditions.';
+            return; // Exit the function if checkbox is not checked
+        } else {
+            acceptTermsError.textContent = '';
+        }
+
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const dob = document.getElementById("dob").value;
+        const acceptedTermsAndconditions = acceptTermsCheckbox.checked;
+        const entry = {
+            name,
+            email,
+            password,
+            dob,
+            acceptedTermsAndconditions
+        };
+        userEntries.push(entry);
+        localStorage.setItem("user-entries", JSON.stringify(userEntries));
+        displayEntries();
+        userForm.reset(); // Reset the form fields after submission
+    };
+
+    userForm.addEventListener("submit", saveUserForm);
+    displayEntries();
+
+    const acceptTermsCheckbox = document.getElementById('acceptTerms');
+    const acceptTermsError = document.getElementById('acceptTermsError');
+    const dobInput = document.getElementById('dob');
+    const dobError = document.getElementById('dobError');
+
+    // Event listener for checkbox change
+    acceptTermsCheckbox.addEventListener('change', function () {
+        // Clear the error message when the checkbox is checked
+        acceptTermsError.textContent = '';
+    });
+
+    // Event listener for date input change
+    dobInput.addEventListener('input', function () {
+        validateDOB();
+    });
+
+    // Event listener for form submission
+    document.getElementById('user-form').addEventListener('submit', function (event) {
+        // Validate date of birth before submitting the form
+        if (!validateDOB()) {
+            event.preventDefault();
+        }
+    });
+
+    // Function to validate date of birth
+    function validateDOB() {
+        const dobValue = dobInput.value;
+        const dobDate = new Date(dobValue);
+        const currentDate = new Date();
+        const minAgeDate = new Date(currentDate);
+        minAgeDate.setFullYear(minAgeDate.getFullYear() - 55);
+        const maxAgeDate = new Date(currentDate);
+        maxAgeDate.setFullYear(maxAgeDate.getFullYear() - 18);
+
+        if (dobDate < minAgeDate || dobDate > maxAgeDate) {
+            dobError.textContent = 'Please enter a valid date of birth between 18 and 55 years.';
+            return false;
+        } else {
+            dobError.textContent = '';
+            return true;
+        }
+    }
+</script>
+
+
+</body>
+</html>
